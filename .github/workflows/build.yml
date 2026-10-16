@@ -1,0 +1,57 @@
+name: Build Seba API
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, xml, curl, zip, bcmath, intl
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create Laravel 11 skeleton
+        run: composer create-project laravel/laravel:^11.0 build --no-interaction --prefer-dist
+
+      - name: Copy Seba API files
+        run: rsync -a --exclude '.git' --exclude '.github' ./ build/
+
+      - name: Install PHP packages
+        working-directory: build
+        run: |
+          composer require inertiajs/inertia-laravel:^1.0 --no-interaction
+          composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Build React frontend
+        working-directory: build
+        run: |
+          npm install
+          npm run build
+
+      - name: Prepare cPanel package
+        run: |
+          mkdir -p dist/laravel dist/public_html
+          rsync -a --exclude 'node_modules' --exclude 'public' --exclude 'tests' --exclude '.env' build/ dist/laravel/
+          cp -r build/public/. dist/public_html/
+          sed -i "s#__DIR__.'/../#__DIR__.'/../laravel/#g" dist/public_html/index.php
+          KEY=$(cd build && php artisan key:generate --show)
+          sed -i "s#^APP_KEY=.*#APP_KEY=${KEY}#" dist/laravel/.env.example
+
+      - name: Create zip
+        run: cd dist && zip -qr ../seba-api-ready.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seba-api-ready
+          path: seba-api-ready.zip
+          
