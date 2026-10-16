@@ -21,13 +21,13 @@ jobs:
           node-version: '20'
 
       - name: Create Laravel 11 skeleton
-        run: composer create-project laravel/laravel build --no-install --no-interaction --prefer-dist
+        run: composer create-project "laravel/laravel:^11.0" build --no-scripts --no-install --no-interaction --prefer-dist
 
-      - name: Pin Laravel to a safe version and add Inertia
+      - name: Pin Laravel 11 and add Inertia
         working-directory: build
         run: |
-          composer require "laravel/framework:11.30.*" --no-interaction --no-scripts
-          composer require inertiajs/inertia-laravel:^1.0 --no-interaction --no-scripts
+          composer require "laravel/framework:11.30.*" --no-scripts --no-interaction
+          composer require "inertiajs/inertia-laravel:^1.0" --no-scripts --no-interaction
 
       - name: Copy Seba API files
         run: rsync -a --exclude '.git' --exclude '.github' ./ build/
@@ -48,7 +48,8 @@ jobs:
           rsync -a --exclude 'node_modules' --exclude 'public' --exclude 'tests' --exclude '.env' build/ dist/laravel/
           cp -r build/public/. dist/public_html/
           sed -i "s#__DIR__.'/../#__DIR__.'/../laravel/#g" dist/public_html/index.php
-          KEY=$(cd build && php artisan key:generate --show)
+          cd build && cp .env.example .env && php artisan key:generate --force && cd ..
+          KEY=$(grep '^APP_KEY=' build/.env | cut -d= -f2-)
           sed -i "s#^APP_KEY=.*#APP_KEY=${KEY}#" dist/laravel/.env.example
 
       - name: Create zip
