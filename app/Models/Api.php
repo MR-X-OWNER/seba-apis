@@ -10,6 +10,7 @@ class Api extends Model
 
     protected $fillable = [
         'name', 'slug', 'method', 'url', 'headers', 'params', 'response_path',
+        'success_path', 'success_value',
         'provider_cost', 'user_price', 'success_charge', 'failed_charge',
         'is_enabled', 'rate_limit_per_min',
     ];
