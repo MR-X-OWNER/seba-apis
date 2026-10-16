@@ -59,5 +59,4 @@ jobs:
         run: cd dist && zip -qr ../seba-api-ready.zip .
 
       - uses: actions/upload-artifact@v4
-        with:
-          name: seba-api-read
+        with: { name: seba-api-ready, path: seba-api-ready.zip }
