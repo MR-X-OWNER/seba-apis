@@ -48,6 +48,8 @@ jobs:
           mkdir -p dist/laravel dist/public_html
           rsync -a --exclude 'node_modules' --exclude 'public' --exclude 'tests' --exclude '.env' build/ dist/laravel/
           cp -r build/public/. dist/public_html/
+          mkdir -p dist/laravel/public
+          cp -r build/public/build dist/laravel/public/
           sed -i "s#__DIR__.'/../#__DIR__.'/../laravel/#g" dist/public_html/index.php
           cd build && cp .env.example .env && php artisan key:generate --force && cd ..
           KEY=$(grep '^APP_KEY=' build/.env | cut -d= -f2-)
@@ -58,5 +60,4 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: seba-api-ready
-          path: seba-api-ready.zip
+          name: seba-api-read
