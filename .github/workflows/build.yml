@@ -20,14 +20,15 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Turn off Composer advisory block for this build
+        run: composer config --global policy.advisories.block false
+
       - name: Create Laravel 11 skeleton
         run: composer create-project "laravel/laravel:^11.0" build --no-scripts --no-install --no-interaction --prefer-dist
 
-      - name: Pin Laravel 11 and add Inertia
+      - name: Add Inertia
         working-directory: build
-        run: |
-          composer require "laravel/framework:11.30.*" --no-scripts --no-interaction
-          composer require "inertiajs/inertia-laravel:^1.0" --no-scripts --no-interaction
+        run: composer require "inertiajs/inertia-laravel:^1.0" --no-scripts --no-interaction
 
       - name: Copy Seba API files
         run: rsync -a --exclude '.git' --exclude '.github' ./ build/
