@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import Layout, { fmt } from '../../../Layout';
+import Layout, { PageHeader, fmt } from '../../../Layout';
 
 export default function ApisIndex({ apis }) {
   const { flash } = usePage().props;
@@ -10,60 +10,67 @@ export default function ApisIndex({ apis }) {
 
   return (
     <Layout>
-      <div className="flex items-center justify-between mb-6 gap-3">
-        <h1 className="text-2xl font-extrabold">API সমূহ</h1>
-        <Link href="/admin/apis/create" className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2">
-          + নতুন API
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="API management"
+        title="API তালিকা"
+        description="প্রতিটি provider API এখান থেকে যোগ, সম্পাদনা ও নিয়ন্ত্রণ করুন।"
+        action={
+          <Link href="/admin/apis/create" className="rounded-xl bg-[#6758e8] px-4 py-2.5 text-xs font-semibold text-white shadow-lg">
+            + নতুন API
+          </Link>
+        }
+      />
 
       {flash?.success && (
-        <div className="mb-4 rounded-xl bg-emerald-100 text-emerald-800 px-4 py-2">{flash.success}</div>
+        <div className="mb-5 rounded-xl bg-[#e8f8f1] px-4 py-3 text-sm font-semibold text-[#35a077]">{flash.success}</div>
       )}
 
-      <div className="overflow-x-auto rounded-2xl bg-white dark:bg-slate-900 shadow border border-slate-200 dark:border-slate-800">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-100 dark:bg-slate-800 text-left">
-            <tr>
-              <th className="p-3">নাম</th>
-              <th className="p-3">Slug</th>
-              <th className="p-3">Provider খরচ</th>
-              <th className="p-3">User Price</th>
-              <th className="p-3">লাভ</th>
-              <th className="p-3">Limit/min</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Action</th>
+      <div className="overflow-x-auto rounded-2xl border border-[#e9eaf1] bg-white">
+        <table className="w-full min-w-[760px] text-left">
+          <thead>
+            <tr className="border-b border-[#f1f1f5] text-[10px] uppercase tracking-[.08em] text-[#a0a1b1]">
+              <th className="px-6 py-4 font-bold">API নাম</th>
+              <th className="px-6 py-4 font-bold">Slug</th>
+              <th className="px-6 py-4 font-bold">Provider খরচ</th>
+              <th className="px-6 py-4 font-bold">User Price</th>
+              <th className="px-6 py-4 font-bold">লাভ</th>
+              <th className="px-6 py-4 font-bold">Status</th>
+              <th className="px-6 py-4 font-bold"></th>
             </tr>
           </thead>
           <tbody>
             {apis.map((api) => (
-              <tr key={api.id} className="border-t border-slate-200 dark:border-slate-800">
-                <td className="p-3 font-semibold">{api.name}</td>
-                <td className="p-3">{api.slug}</td>
-                <td className="p-3">৳ {fmt(api.provider_cost)}</td>
-                <td className="p-3">৳ {fmt(api.user_price)}</td>
-                <td className="p-3 text-emerald-600 font-semibold">৳ {fmt(api.user_price - api.provider_cost)}</td>
-                <td className="p-3">{api.rate_limit_per_min ?? 'সীমাহীন'}</td>
-                <td className="p-3">
+              <tr key={api.id} className="border-b border-[#f5f5f7] last:border-0">
+                <td className="px-6 py-4 text-[13px] font-bold">{api.name}</td>
+                <td className="px-6 py-4 text-[12px] text-[#696b80]">{api.slug}</td>
+                <td className="px-6 py-4 text-[12px] text-[#696b80]">৳ {fmt(api.provider_cost)}</td>
+                <td className="px-6 py-4 text-[12px] text-[#696b80]">৳ {fmt(api.user_price)}</td>
+                <td className="px-6 py-4 text-[12px] font-bold text-[#35a077]">৳ {fmt(api.user_price - api.provider_cost)}</td>
+                <td className="px-6 py-4">
                   <button
                     onClick={() => router.post(`/admin/apis/${api.id}/toggle`)}
-                    className={`rounded-lg px-2 py-1 text-white text-xs ${api.is_enabled ? 'bg-emerald-600' : 'bg-slate-500'}`}
+                    className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                      api.is_enabled ? 'bg-[#e8f8f1] text-[#35a077]' : 'bg-[#fff0e5] text-[#cc893b]'
+                    }`}
                   >
-                    {api.is_enabled ? 'ON' : 'OFF'}
+                    {api.is_enabled ? 'Live' : 'Paused'}
                   </button>
                 </td>
-                <td className="p-3 space-x-2 whitespace-nowrap">
-                  <Link href={`/admin/apis/${api.id}/edit`} className="text-indigo-600 font-semibold">Edit</Link>
-                  <button onClick={() => remove(api)} className="text-rose-600 font-semibold">Delete</button>
+                <td className="px-6 py-4 whitespace-nowrap space-x-3">
+                  <Link href={`/admin/apis/${api.id}/edit`} className="text-[12px] font-bold text-[#6758e8]">Edit</Link>
+                  <button onClick={() => remove(api)} className="text-[12px] font-bold text-rose-500">Delete</button>
                 </td>
               </tr>
             ))}
             {apis.length === 0 && (
-              <tr><td className="p-3 text-slate-500" colSpan={8}>এখনো কোনো API যোগ করা হয়নি।</td></tr>
+              <tr>
+                <td className="px-6 py-6 text-sm text-[#9091a3]" colSpan={7}>এখনো কোনো API যোগ করা হয়নি।</td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
     </Layout>
   );
-}
+        }
+                      
